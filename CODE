@@ -1,0 +1,45 @@
+# Import necessary libraries
+import tensorflow as tf
+from tensorflow.keras import layers, models
+from sklearn.model_selection import train_test_split
+import numpy as np
+
+# Load and preprocess the BraTS dataset (Assuming you have the data in a suitable format)
+# Code for loading and preprocessing would be specific to the dataset structure
+
+# Define the U-Net architecture for segmentation
+def unet_model(input_shape):
+    model = models.Sequential()
+    
+    # Encoder
+    model.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same', input_shape=input_shape))
+    model.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same'))
+    model.add(layers.MaxPooling2D(pool_size=(2, 2)))
+    
+    # Decoder
+    model.add(layers.Conv2D(128, (3, 3), activation='relu', padding='same'))
+    model.add(layers.Conv2D(128, (3, 3), activation='relu', padding='same'))
+    model.add(layers.UpSampling2D(size=(2, 2)))
+    
+    # Output layer
+    model.add(layers.Conv2D(1, (1, 1), activation='sigmoid', padding='same'))
+    
+    return model
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(images, labels, test_size=0.2, random_state=42)
+
+# Preprocess the data (normalize, resize, etc.)
+# Code for preprocessing would be specific to the dataset and image format
+
+# Create and compile the U-Net model
+input_shape = (height, width, channels)  # Adjust dimensions based on your images
+model = unet_model(input_shape)
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# Train the model
+model.fit(X_train, y_train, epochs=10, batch_size=16, validation_data=(X_test, y_test))
+
+# Evaluate the model
+metrics = model.evaluate(X_test, y_test)
+print("Test Dice coefficient:", metrics[1])
